@@ -10,29 +10,36 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public partial class Form1 : Form
+    public partial class Glinatimer : Form
     {
-        public Form1()
+        public Glinatimer()
         {
             InitializeComponent();
         }
+        private int mls;
         private int sec;
         private int min;
         private int hour;
 
+
         private void timer1_Tick(object sender, EventArgs e)
         {
-            sec++;
-            if (sec >= 60)
+            mls++;
+            if (mls >= 10)
             {
-                sec = 0;
-                min++;
-            }
-            if (min >= 60)
-            {
-                hour++;
-                min = 0;
-                sec = 0;
+                sec++;
+                mls = 0;
+                if (sec >= 60)
+                {
+                    sec = 0;
+                    min++;
+                    if (min >= 60)
+                    {
+                        hour++;
+                        min = 0;
+                        sec = 0;
+                    }
+                }
             }
             RepaintRequired();
         }
@@ -43,13 +50,20 @@ namespace WindowsFormsApp1
 
         private void Painter(Graphics g)
         {
+            string mlsS = mls.ToString().PadLeft(2, '0');
             string hourS = hour.ToString().PadLeft(2, '0');
             string secS = sec.ToString().PadLeft(2, '0');
             string minS = min.ToString().PadLeft(2, '0');
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
             using (var f = new Font("Segoe UI", 75))
             {
                 g.DrawString($"{hourS}:{minS}:{secS}", f, Brushes.Black, new PointF(30, 30));
             }
+            using (var f = new Font("Segoe UI", 15))
+            {
+                g.DrawString($"{mlsS}", f, Brushes.Black, new PointF(380, 140));
+            }
+
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
@@ -72,15 +86,18 @@ namespace WindowsFormsApp1
                 timer1.Start();
                 timer = true;
             }
+            RepaintRequired();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
+            mls = 0;
             sec = 0;
             min = 0;
             hour = 0;
             timer1.Stop();
             timer = false;
+            RepaintRequired();
         }
     }
 }

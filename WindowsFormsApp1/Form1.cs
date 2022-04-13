@@ -8,62 +8,56 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace WindowsFormsApp1
+namespace WindowsFormsApp3
 {
-    public partial class Glinatimer : Form
+    public partial class MainForm : Form
     {
-        public Glinatimer()
+        private DateTime startTime;
+        private DateTime pauseTime;
+        private TimerState state;
+
+        public MainForm()
         {
             InitializeComponent();
+            state = TimerState.Stopped;
         }
 
-
-        private void timer1_Tick(object sender, EventArgs e)
+        private void btnStart_Click(object sender, EventArgs e)
         {
-            TimeSpan timer = DateTime.Now - StartDate;
-            label1.Text = timer.ToString();
-        }
-        private void RepaintRequired()
-        {
-            Invalidate();
-        }
-
-        private void Form1_Paint(object sender, PaintEventArgs e)
-        {
-        }
-
-        bool timer = false;
-        bool timerReset = false;
-        private DateTime StartDate;
-        private TimeSpan TimeRealTime;
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            if (timer)
+            if (state == TimerState.Stopped)
             {
-                timer1.Stop();
-                timer = false;
+                startTime = DateTime.Now;
+                timer.Start();
+                btnStart.Text = "Пауза";
+                state = TimerState.Running;
             }
-            else 
+            else if (state == TimerState.Running)
             {
-                timer1.Start();
-                timer = true;
-                TimeRealTime = DateTime.Now - StartDate;
-                StartDate.Add(TimeRealTime);
+                timer.Stop();
+                pauseTime = DateTime.Now;
+                btnStart.Text = "Продолжить";
+                state = TimerState.Paused;
             }
-            if (timerReset == false)
+            else if (state == TimerState.Paused)
             {
-                StartDate = DateTime.Now;
-                timerReset = true;
+                startTime = startTime.Add(DateTime.Now - pauseTime);
+                timer.Start();
+                btnStart.Text = "Пауза";
+                state = TimerState.Running;
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void timer_Tick(object sender, EventArgs e)
         {
-            timer1.Stop();
-            timer = false;
-            StartDate = new DateTime(default);
-            RepaintRequired();
+            TimeSpan duration = DateTime.Now - startTime;
+            lblTime.Text = duration.ToString();
+        }
+
+        private void btnStop_Click(object sender, EventArgs e)
+        {
+            timer.Stop();
+            btnStart.Text = "Старт";
+            state = TimerState.Stopped;
         }
     }
 }

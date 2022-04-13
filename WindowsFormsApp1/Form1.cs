@@ -16,64 +16,27 @@ namespace WindowsFormsApp1
         {
             InitializeComponent();
         }
-        private int mls;
-        private int sec;
-        private int min;
-        private int hour;
 
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            mls++;
-            if (mls >= 10)
-            {
-                sec++;
-                mls = 0;
-                if (sec >= 60)
-                {
-                    sec = 0;
-                    min++;
-                    if (min >= 60)
-                    {
-                        hour++;
-                        min = 0;
-                        sec = 0;
-                    }
-                }
-            }
-            RepaintRequired();
+            TimeSpan timer = DateTime.Now - StartDate;
+            label1.Text = timer.ToString();
         }
         private void RepaintRequired()
         {
             Invalidate();
         }
 
-        private void Painter(Graphics g)
-        {
-            string mlsS = mls.ToString().PadLeft(2, '0');
-            string hourS = hour.ToString().PadLeft(2, '0');
-            string secS = sec.ToString().PadLeft(2, '0');
-            string minS = min.ToString().PadLeft(2, '0');
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
-            using (var f = new Font("Segoe UI", 75))
-            {
-                g.DrawString($"{hourS}:{minS}:{secS}", f, Brushes.Black, new PointF(30, 30));
-            }
-            using (var f = new Font("Segoe UI", 15))
-            {
-                g.DrawString($"{mlsS}", f, Brushes.Black, new PointF(380, 140));
-            }
-
-        }
-
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            Graphics g = e.Graphics;
-            g.Clear(Color.White);
-            Painter(g);
         }
 
         bool timer = false;
+        bool timerReset = false;
+        private DateTime StartDate;
+        private TimeSpan TimeRealTime;
+
         private void button1_Click(object sender, EventArgs e)
         {
             if (timer)
@@ -85,18 +48,21 @@ namespace WindowsFormsApp1
             {
                 timer1.Start();
                 timer = true;
+                TimeRealTime = DateTime.Now - StartDate;
+                StartDate.Add(TimeRealTime);
             }
-            RepaintRequired();
+            if (timerReset == false)
+            {
+                StartDate = DateTime.Now;
+                timerReset = true;
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            mls = 0;
-            sec = 0;
-            min = 0;
-            hour = 0;
             timer1.Stop();
             timer = false;
+            StartDate = new DateTime(default);
             RepaintRequired();
         }
     }
